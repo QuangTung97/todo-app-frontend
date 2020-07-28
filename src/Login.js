@@ -5,9 +5,10 @@ import { Loader, Input, Paper, FormLabel, Button } from "./util";
 import { login } from "./api";
 import AppContext from "./context";
 import { Redirect } from "react-router";
+import { useTitle } from "./hooks";
+import Layout from "./Layout";
 
 const Background = styled.div`
-  width: 100%;
   height: 100%;
   display: flex;
   justify-content: center;
@@ -45,10 +46,19 @@ const Title = styled.div`
   margin-bottom: 18px;
 `;
 
+const ErrorMsg = styled.h4`
+  color: red;
+`;
+
+const defaultErrMsg = "Encounter an error while login";
+
 const Login = () => {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [state, setState] = useState("initial"); // initial, loading, error
+  const [errorMsg, setErrorMsg] = useState(defaultErrMsg);
+
+  useTitle("Login");
 
   const { token, setToken } = useContext(AppContext);
 
@@ -59,6 +69,7 @@ const Login = () => {
       const token = await login(username, password, setToken);
       if (token === null) {
         setState("error");
+        setErrorMsg("Username or password is incorrect");
         return;
       }
       setState("initial");
@@ -66,6 +77,7 @@ const Login = () => {
       localStorage.setItem("token", token);
     } catch (e) {
       setState("error");
+      setErrorMsg("Network error");
     }
   }
 
@@ -80,28 +92,34 @@ const Login = () => {
   };
 
   return token === null ? (
-    <Background>
-      <LoginForm>
-        <form onSubmit={onSubmit}>
-          <Title>
-            <LoginTitle>Todo App</LoginTitle>
-            {state === "loading" ? <Loader /> : ""}
-          </Title>
-          <h4>{state === "error" ? "Encounter an error while login" : ""}</h4>
-          <div>
-            <Label>Username</Label>
-            <Input type="text" value={username} onChange={changeUsername} />
-          </div>
-          <div style={{ marginTop: 16 }}>
-            <Label>Password</Label>
-            <Input type="password" value={password} onChange={changePassword} />
-          </div>
-          <div>
-            <Submit type="submit">Login</Submit>
-          </div>
-        </form>
-      </LoginForm>
-    </Background>
+    <Layout>
+      <Background>
+        <LoginForm>
+          <form onSubmit={onSubmit}>
+            <Title>
+              <LoginTitle>Todo App</LoginTitle>
+              {state === "loading" ? <Loader /> : ""}
+            </Title>
+            <ErrorMsg>{state === "error" ? errorMsg : ""}</ErrorMsg>
+            <div>
+              <Label>Username</Label>
+              <Input type="text" value={username} onChange={changeUsername} />
+            </div>
+            <div style={{ marginTop: 16 }}>
+              <Label>Password</Label>
+              <Input
+                type="password"
+                value={password}
+                onChange={changePassword}
+              />
+            </div>
+            <div>
+              <Submit type="submit">Login</Submit>
+            </div>
+          </form>
+        </LoginForm>
+      </Background>
+    </Layout>
   ) : (
     <Redirect to="/" />
   );

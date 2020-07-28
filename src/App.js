@@ -6,6 +6,7 @@ import AppContext from "./context";
 import ErrorPage from "./ErrorPage";
 import PrivatedRoute from "./PrivatedRoute";
 import Home from "./Home";
+import NewAccount from "./NewAccount";
 
 const App = () => {
   const [token, setToken] = useState(null);
@@ -39,6 +40,9 @@ const App = () => {
         <Switch>
           <Route exact path="/login">
             <Login />
+          </Route>
+          <Route exact path="/accounts/new">
+            <NewAccount />
           </Route>
           <PrivatedRoute exact path="/">
             <Home />
